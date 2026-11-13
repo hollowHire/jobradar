@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "岗位雷达 JobRadar",
+  "version": "0.8.6",
+  "description": "在 BOSS 直聘搜索页自动抓取岗位，按薪资/通勤/双休/关键词打分排序，筛完自动投递。全部数据本地处理，不上传服务器。",
+  "minimum_chrome_version": "111",
+  "permissions": ["storage", "tabs", "downloads"],
+  "host_permissions": [
+    "*://*.zhipin.com/*",
+    "*://restapi.amap.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.zhipin.com/web/geek/*", "*://www.zhipin.com/job_detail/*"],
+      "js": ["inject.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": false
+    },
+    {
+      "matches": ["*://www.zhipin.com/web/geek/*", "*://www.zhipin.com/job_detail/*"],
+      "js": ["matcher.js", "content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js"],
+      "matches": ["*://*.zhipin.com/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "岗位雷达"
+  }
+}

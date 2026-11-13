@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  :root{--bg:#0f141c;--line:rgba(120,150,200,.18);--txt:#e6edf7;--dim:#8b98ad;--acc:#3b82f6}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:260px;background:var(--bg);color:var(--txt);
+    font:12.5px/1.5 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;padding:14px}
+  .hd{display:flex;align-items:center;gap:7px;margin-bottom:12px}
+  .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e}
+  .ttl{font-size:13px;font-weight:600}
+  .ver{margin-left:auto;font-size:10px;color:#5f6a7d}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+  .st{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:9px;padding:8px 6px;text-align:center}
+  .st b{display:block;font-size:15px;line-height:1.2}
+  .st span{font-size:10px;color:var(--dim)}
+  .btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:#1a2130;
+    color:var(--txt);font-family:inherit;font-size:12px;cursor:pointer;margin-bottom:7px;transition:.15s}
+  .btn:hover{background:#232c3d}
+  .btn.primary{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:#1d4ed8;font-weight:600}
+  .btn.acc{background:linear-gradient(90deg,rgba(37,99,235,.28),rgba(37,99,235,.12));
+    border-color:rgba(96,165,250,.42);color:#dbeafe;font-weight:600}
+  .tip{font-size:10.5px;color:#6b7688;line-height:1.6;margin-top:10px;
+    border-top:1px solid rgba(255,255,255,.07);padding-top:9px}
+</style>
+</head>
+<body>
+  <div class="hd"><div class="dot"></div><div class="ttl">岗位雷达</div><div class="ver">v0.7.1</div></div>
+  <div class="stats">
+    <div class="st"><b id="n1">0</b><span>已抓取</span></div>
+    <div class="st"><b id="n2">0</b><span>待投递</span></div>
+    <div class="st"><b id="n3">0</b><span>已投递</span></div>
+  </div>
+  <div id="runBar" style="display:none;font-size:11px;color:#f0b429;background:rgba(240,180,41,.1);
+    border:1px solid rgba(240,180,41,.28);border-radius:8px;padding:7px 9px;margin-bottom:8px">
+    投递进行中 · <span id="runTxt">0/0</span>
+  </div>
+  <button class="btn primary" id="go">打开 BOSS 直聘搜索页</button>
+  <button class="btn acc" id="resume">简历匹配 · 找最合适的岗位</button>
+  <button class="btn" id="opt">筛选设置</button>
+  <button class="btn" id="exp">导出 CSV</button>
+  <div class="tip">在搜索页右侧面板展开后可以看到排序结果。所有数据仅存本地。</div>
+<script src="popup.js"></script>
+</body>
+</html>

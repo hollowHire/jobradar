@@ -1,0 +1,9 @@
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+.idea/
+.vscode/
+
+# 本地保留的原始打包产物（GitHub 自带 Download ZIP，无需入库）
+dist/

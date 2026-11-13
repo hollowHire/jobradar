@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>岗位雷达 JobRadar · 使用说明书</title>
+<style>
+  :root{
+    --ink:#101828; --dim:#5a6779; --dim2:#8a94a6;
+    --bg:#f5f7fa; --card:#fff; --line:#e4e9f1;
+    --acc:#2563eb; --acc-soft:#eff4ff;
+    --ok:#15803d; --ok-soft:#ecfdf3;
+    --warn:#b45309; --warn-soft:#fff8ec;
+    --bad:#b91c1c; --bad-soft:#fef2f2;
+    --panel:#0f141c; --panel-line:rgba(120,150,200,.22);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    padding-bottom:80px;
+  }
+  a{color:var(--acc);text-decoration:none;border-bottom:1px solid rgba(37,99,235,.25)}
+  a:hover{border-bottom-color:var(--acc)}
+  code{font-family:var(--mono);font-size:.88em;background:#eef2f8;border-radius:5px;padding:1px 5px;color:#22324d}
+
+  /* ---------- 头部 ---------- */
+  header{
+    background:radial-gradient(900px 420px at 15% -20%,rgba(37,99,235,.5),transparent 60%),
+               radial-gradient(700px 380px at 95% 0%,rgba(20,184,166,.28),transparent 62%),
+               linear-gradient(180deg,#0b1220,#101a2b);
+    color:#eaf1fb;padding:44px 22px 38px;
+  }
+  .hd{max-width:820px;margin:0 auto}
+  .badge{
+    display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.4px;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+    color:#cfe0f5;border-radius:999px;padding:4px 12px;
+  }
+  .badge i{width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399}
+  h1{font-size:30px;line-height:1.35;letter-spacing:.5px;margin:16px 0 10px;font-weight:700}
+  h1 span{color:#7dd3fc}
+  .lede{font-size:15px;color:#a9bcd4;max-width:600px}
+  .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px}
+  .fact{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px}
+  .fact b{display:block;font-size:16px;color:#fff}
+  .fact span{font-size:11.5px;color:#93a6bf}
+  @media (max-width:620px){
+    header{padding:32px 18px 28px}
+    h1{font-size:24px}
+    .facts{grid-template-columns:repeat(2,1fr)}
+  }
+
+  /* ---------- 目录 ---------- */
+  nav{
+    position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+  }
+  .nav-in{max-width:820px;margin:0 auto;display:flex;gap:8px;padding:10px 18px;overflow-x:auto;scrollbar-width:none}
+  .nav-in::-webkit-scrollbar{display:none}
+  .nav-in a{
+    flex:0 0 auto;font-size:12.5px;color:var(--dim);border:1px solid var(--line);
+    background:#fff;border-radius:999px;padding:5px 11px;white-space:nowrap;
+  }
+  .nav-in a:hover{color:var(--acc);border-color:rgba(37,99,235,.35);background:var(--acc-soft)}
+
+  main{max-width:820px;margin:0 auto;padding:8px 18px 0}
+
+  section{padding:34px 0 6px;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:none}
+  h2{font-size:20px;letter-spacing:.3px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  h2 .no{
+    flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:var(--acc-soft);
+    color:var(--acc);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .sub{color:var(--dim);font-size:13.5px;margin:0 0 18px 38px}
+  h3{font-size:15.5px;margin:22px 0 8px;letter-spacing:.2px}
+  p{margin:10px 0;color:#26313f}
+  ul,ol{margin:10px 0 10px 22px}
+  li{margin:6px 0}
+  .muted{color:var(--dim);font-size:13px}
+
+  /* ---------- 卡片 / 提示 ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px;margin:14px 0}
+  .card.tight{padding:14px 16px}
+  .tip,.warn,.danger{border-radius:12px;padding:13px 15px;margin:14px 0;font-size:13.5px;line-height:1.7}
+  .tip{background:var(--acc-soft);border:1px solid #d6e3ff;color:#22376b}
+  .warn{background:var(--warn-soft);border:1px solid #f6dfb6;color:#7c4a07}
+  .danger{background:var(--bad-soft);border:1px solid #f6cfcf;color:#7f1d1d}
+  .tip b,.warn b,.danger b{color:inherit}
+  .k{font-weight:600;color:#0b1220}
+
+  /* ---------- 步骤 ---------- */
+  .steps{counter-reset:s;display:grid;gap:10px;margin:16px 0}
+  .step{
+    counter-increment:s;position:relative;background:#fff;border:1px solid var(--line);
+    border-radius:13px;padding:14px 16px 14px 54px;
+  }
+  .step::before{
+    content:counter(s);position:absolute;left:14px;top:13px;width:26px;height:26px;border-radius:8px;
+    background:#0b1220;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .step b{display:block;font-size:14.5px;margin-bottom:3px}
+  .step span{color:var(--dim);font-size:13px}
+  .step .path{display:inline-block;margin-top:5px;font-family:var(--mono);font-size:12px;background:#0b1220;color:#9fd5ff;border-radius:6px;padding:2px 8px}
+
+  /* ---------- 面板示意图 ---------- */
+  .panel{
+    background:var(--panel);color:#e6edf7;border-radius:14px;border:1px solid rgba(120,150,200,.3);
+    padding:12px;max-width:430px;margin:16px auto;box-shadow:0 16px 40px rgba(11,18,32,.22);
+    font-size:12.5px;line-height:1.5;
+  }
+  .p-hd{display:flex;align-items:center;gap:7px;padding:2px 2px 9px}
+  .p-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e}
+  .p-ttl{font-size:12.5px;font-weight:600}
+  .p-ttl em{font-style:normal;color:#5f6a7d;font-size:10px;margin-left:4px}
+  .p-sub{margin-left:auto;font-size:11px;color:#8b98ad}
+  .p-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+  .p-kpi{font-size:10.5px;color:#9fb0c9;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:2px 6px}
+  .p-kpi b{color:#e6edf7;font-weight:600}
+  .p-kpi.on{color:#bfdbfe;border-color:rgba(96,165,250,.5);background:rgba(37,99,235,.22)}
+  .p-search{display:flex;gap:6px;margin-bottom:8px}
+  .p-in{flex:1;background:#0a0f17;border:1px solid rgba(120,150,200,.24);border-radius:7px;padding:5px 8px;color:#cfe0f5;font-size:11.5px}
+  .p-btn{background:linear-gradient(180deg,#3b82f6,#2563eb);border-radius:7px;padding:5px 10px;font-size:11px;color:#fff;font-weight:600}
+  .p-rm{display:flex;align-items:center;gap:8px;border:1px solid rgba(96,165,250,.35);background:linear-gradient(90deg,rgba(37,99,235,.22),rgba(37,99,235,.06));border-radius:8px;padding:6px 8px;margin-bottom:8px}
+  .p-rm .ic{width:18px;height:18px;border-radius:5px;background:rgba(96,165,250,.25);color:#bfdbfe;font-size:10px;display:flex;align-items:center;justify-content:center}
+  .p-rm b{font-size:11px;color:#dbeafe;display:block}
+  .p-rm i{font-style:normal;font-size:10px;color:#8b98ad;display:block}
+  .p-rm .go{margin-left:auto;font-size:10.5px;color:#93c5fd}
+  .p-rowf{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+  .p-chip{border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 7px;font-size:10.5px;color:#9fb0c9;background:rgba(255,255,255,.04)}
+  .p-chip em{font-style:normal;color:#f0b429}
+  .p-list{border-top:1px solid rgba(255,255,255,.07);padding-top:6px}
+  .p-sec{font-size:10px;color:#5f6a7d;padding:5px 2px 2px}
+  .p-item{display:flex;gap:8px;padding:6px 4px;border-radius:8px;align-items:flex-start}
+  .p-item.hl{background:rgba(240,180,41,.07)}
+  .p-ck{width:13px;height:13px;border-radius:3px;border:1.5px solid rgba(255,255,255,.3);margin-top:3px;flex:0 0 auto}
+  .p-ck.on{background:#3b82f6;border-color:#3b82f6;position:relative}
+  .p-ck.on::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:9px;line-height:11px;text-align:center}
+  .p-ck.off{opacity:.35}
+  .p-sc{flex:0 0 40px;display:flex;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:700}
+  .p-mid{flex:1;min-width:0}
+  .p-t1{font-size:11.5px;font-weight:600;color:#eaf1fb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .p-t1 u{margin-left:5px;color:#f0b429;font-weight:600;text-decoration:none;font-size:11px}
+  .p-t2{font-size:10px;color:#8b98ad;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .p-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+  .p-tag{font-size:9px;padding:0 4px;border-radius:3px;background:rgba(255,255,255,.06);color:#a8b6ca}
+  .p-tag.pk{background:rgba(240,180,41,.18);color:#fbbf24;font-weight:600}
+  .p-tag.g{background:rgba(34,197,94,.14);color:#7ee2a8}
+  .p-tag.r{background:rgba(239,68,68,.14);color:#fca5a5}
+  .p-tag.d{background:rgba(96,165,250,.16);color:#93c5fd}
+  .p-ft{display:flex;gap:5px;margin-top:9px;border-top:1px solid rgba(255,255,255,.07);padding-top:8px}
+  .p-ft .b{flex:1;text-align:center;font-size:10.5px;border-radius:7px;padding:5px 4px;border:1px solid rgba(255,255,255,.12);color:#dbe6f5;background:rgba(255,255,255,.06)}
+  .p-ft .b.w{background:linear-gradient(180deg,#f59e0b,#d97706);border-color:#b45309;color:#fff;font-weight:600}
+  .cap{text-align:center;font-size:12px;color:var(--dim2);margin:-6px 0 16px}
+
+  /* 图上的编号 */
+  .n{
+    display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;
+    background:#f0b429;color:#3b2a06;font-size:10px;font-weight:700;vertical-align:1px;margin-right:3px;
+  }
+  .n.blue{background:#60a5fa;color:#0b1a33}
+  /* 面板示意图里的编号：描边款，不抢内容 */
+  .panel .n{background:transparent;border:1px solid rgba(240,180,41,.65);color:#f7c948;font-size:9px;width:14px;height:14px;margin-right:2px}
+
+  /* ---------- 表 ---------- */
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin:14px 0}
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:520px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f8fafc;color:var(--dim);font-weight:600;font-size:12px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td b{color:#0b1220}
+  .tag-s{display:inline-block;font-size:11px;border-radius:4px;padding:1px 6px;background:#eef2f8;color:#3b4a63;white-space:nowrap}
+  .tag-s.g{background:var(--ok-soft);color:var(--ok)}
+  .tag-s.r{background:var(--bad-soft);color:var(--bad)}
+  .tag-s.y{background:var(--warn-soft);color:var(--warn)}
+  .tag-s.b{background:var(--acc-soft);color:var(--acc)}
+
+  /* ---------- 流程图 ---------- */
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}
+  .fbox{background:#fff;border:1px solid var(--line);border-radius:11px;padding:11px 10px;text-align:center;position:relative}
+  .fbox b{display:block;font-size:12.5px;margin-bottom:3px}
+  .fbox span{font-size:11px;color:var(--dim2);line-height:1.5;display:block}
+  .fbox::after{content:"→";position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:#c3ccd9;font-size:13px}
+  .fbox:last-child::after{display:none}
+  .fbox em{font-style:normal;display:block;font-size:10px;color:var(--acc);margin-top:4px}
+  @media (max-width:620px){
+    .flow{grid-template-columns:1fr 1fr}
+    .fbox::after{display:none}
+  }
+
+  /* ---------- FAQ ---------- */
+  details{background:#fff;border:1px solid var(--line);border-radius:12px;margin:9px 0;overflow:hidden}
+  details[open]{border-color:#cfdcf5}
+  summary{
+    cursor:pointer;list-style:none;padding:13px 42px 13px 15px;position:relative;
+    font-size:14px;font-weight:600;color:#16233a;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{
+    content:"+";position:absolute;right:15px;top:50%;transform:translateY(-50%);
+    color:var(--acc);font-size:17px;font-weight:400;transition:.15s;
+  }
+  details[open] summary::after{content:"−"}
+  .ans{padding:0 15px 14px;font-size:13.5px;color:#2b3749;line-height:1.75}
+  .ans p:first-child{margin-top:0}
+  .ans ul{margin:6px 0 0 20px}
+
+  footer{max-width:820px;margin:30px auto 0;padding:0 18px;color:var(--dim2);font-size:12px;text-align:center}
+  .foot-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;text-align:left;margin-bottom:16px}
+  .foot-card b{font-size:13.5px;color:var(--ink)}
+  kbd{
+    font-family:var(--mono);font-size:11.5px;border:1px solid #d3dae6;border-bottom-width:2px;
+    border-radius:5px;padding:0 5px;background:#f8fafc;color:#2b3749;
+  }
+  /* 手机上表格会横向滚动，给一句提示，别让人以为被截断 */
+  .swipe{display:none;text-align:center;font-size:11.5px;color:var(--dim2);margin:-8px 0 14px;letter-spacing:.3px}
+  @media (max-width:640px){
+    .swipe{display:block}
+    table{min-width:430px;font-size:12.5px}
+    th,td{padding:8px 9px}
+  }
+  @media print{
+    nav{display:none}
+    body{background:#fff}
+    header{background:#101a2b !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    section{page-break-inside:auto}
+    details{border-color:#ddd}
+    details > .ans{display:block !important}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <div class="badge"><i></i>v0.8.6 · 适用 Edge / Chrome（111 以上）</div>
+    <h1>岗位雷达 JobRadar<br><span>使用说明书</span></h1>
+    <p class="lede">一个装在自己浏览器里的小工具：把 BOSS 直聘搜索结果里几十个岗位，按你的薪资、通勤、关键词偏好打分排好序，勾选后逐个打开、逐个发一句针对这岗位写过的打招呼语。数据只存在你这台电脑上。</p>
+    <div class="facts">
+      <div class="fact"><b>3 分钟</b><span>装好到投出第一个</span></div>
+      <div class="fact"><b>≤40 个/天</b><span>内置每日上限，防限流</span></div>
+      <div class="fact"><b>15 秒</b><span>默认投递间隔</span></div>
+      <div class="fact"><b>0 上传</b><span>岗位和简历都不出本机</span></div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-in">
+    <a href="#what">这是什么</a>
+    <a href="#install">安装</a>
+    <a href="#first">三分钟上手</a>
+    <a href="#panel">面板图解</a>
+    <a href="#check">勾选框</a>
+    <a href="#resume">简历匹配</a>
+    <a href="#greet">打招呼语</a>
+    <a href="#tune">参数</a>
+    <a href="#faq">常见问题</a>
+    <a href="#risk">风险</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- 01 -->
+<section id="what">
+  <h2><span class="no">01</span>这是什么，不是什么</h2>
+  <p class="sub">先说清楚边界，后面就不会有落差。</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">它做的事</h3>
+    <ul>
+      <li><b>抓</b>：你正常在 BOSS 搜岗位，它在旁边把列表里的岗位（含薪资、区域、福利、标签、公司阶段）收下来，存到你本机。</li>
+      <li><b>排</b>：按你设的薪资底线、想去的区、双休、加分/踩雷词、HR 活跃度、公司阶段打一个 0–100 的分，分数高的在上。</li>
+      <li><b>筛</b>：明显不合适的（外包、驻场、单休、薪资不达标）自动标成「已排除」，不占你的注意力。</li>
+      <li><b>投</b>：勾上想投的岗位，它按你设的间隔一个个打开详情页、点「立即沟通」、补发你为这个岗位写的那句话术。</li>
+      <li><b>记</b>：投过哪家、什么时候、成功没成功，都记下来，同一条岗位不会重复投。</li>
+    </ul>
+
+    <h3>它不做的事（重要）</h3>
+    <ul>
+      <li><b>不替你注册、不碰你的账号密码</b>，也不会代发简历。用的是你自己已经登录的浏览器。</li>
+      <li><b>不是大模型</b>。分数是本地规则算出来的，话术是模板 + 你的简历原句拼出来的——所以它「快且免费」，但话术需要你看一眼再发（后面第三节教怎么写）。</li>
+      <li><b>不能改 BOSS 的站内默认招呼语</b>。点「立即沟通」时，BOSS 一定会先发出它自己存的那句，扩展只能在后面补第二条。这是平台规则，绕不过去（见 <a href="#greet">07</a>）。</li>
+      <li><b>不上传任何数据</b>。唯一的外部请求是你自己填了「高德 Key」时算通勤距离用的。</li>
+    </ul>
+  </div>
+
+  <div class="tip">
+    <b>适合谁：</b>正在海投、每天要翻几十上百个岗位、懒得一个个看 JD 的人。<b>不适合：</b>只想投 3–5 家精品岗位的人——手动投反而更好，因为你本来就会认真看每一份 JD。
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="install">
+  <h2><span class="no">02</span>安装（3 步，2 分钟）</h2>
+  <p class="sub">还没上架应用商店，用「加载解压缩的扩展」方式安装。装一次就好，之后自动生效。</p>
+
+  <div class="steps">
+    <div class="step">
+      <b>解压安装包</b>
+      <span>把收到的 <code>jobradar-v0.8.6.zip</code> 解压到一个<b>固定的文件夹</b>（例如 <code>D:\JobRadar</code>）。装好后别再移动或删除这个文件夹，否则扩展会失效。</span>
+    </div>
+    <div class="step">
+      <b>打开扩展管理页，开启「开发者模式」</b>
+      <span>Edge 地址栏输入 <span class="path">edge://extensions</span>；Chrome 输入 <span class="path">chrome://extensions</span>。打开页面右上角（或左下角）的「开发者模式」开关。</span>
+    </div>
+    <div class="step">
+      <b>点「加载解压缩的扩展」，选刚才那个文件夹</b>
+      <span>选中解压出来的文件夹（里面能看到 <code>manifest.json</code> 的那一层），确定。列表里出现「岗位雷达 JobRadar」就成功了。</span>
+    </div>
+    <div class="step">
+      <b>把图标固定到工具栏（建议）</b>
+      <span>点浏览器右上角的拼图图标 🧩，找到「岗位雷达」，点旁边的图钉固定。以后点它就能打开简历匹配、筛选设置、导出结果。</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>装完没反应？</b>① 确认你是在 <code>www.zhipin.com</code> 的<b>搜索结果页</b>（地址里带 <code>/web/geek/job</code>），首页和职位详情页右侧不会出现面板；② 装完后<b>刷新一次 BOSS 页面</b>；③ 扩展管理页里确认它是「已启用」状态。
+  </div>
+</section>
+
+<!-- 03 -->
+<section id="first">
+  <h2><span class="no">03</span>三分钟上手（第一次建议只投 3 个）</h2>
+  <p class="sub">第一次别放量。先投 3 个，确认话术真的发出去了、语气你自己能接受，再放开。</p>
+
+  <div class="flow">
+    <div class="fbox"><b>搜岗位</b><span>在 BOSS 搜你要的方向</span><em>关键词准一点</em></div>
+    <div class="fbox"><b>抓岗位</b><span>往下滚两屏，面板自己收</span><em>看「收录」涨</em></div>
+    <div class="fbox"><b>勾选</b><span>勾上想投的，或点全选</span><em>默认已勾前 15 个</em></div>
+    <div class="fbox"><b>调间隔</b><span>新手 30–45 秒</span><em>首用别低于 15 秒</em></div>
+    <div class="fbox"><b>自动投递</b><span>点底部橙色按钮</span><em>别关页面</em></div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <b>在 BOSS 搜一个具体的岗位方向</b>
+      <span>例如「前端工程师」「AI 产品经理」「数据分析」。关键词越具体，抓到的岗位越准。搜完停在搜索结果页。</span>
+    </div>
+    <div class="step">
+      <b>看右侧的「岗位雷达」面板，展开它</b>
+      <span>默认是一条很小的迷你条（显示「岗位雷达 · N」），点一下展开。然后<b>往下滚两屏</b>，让 BOSS 把职位列表加载出来——面板就是靠这些卡片和接口响应来收录岗位的。</span>
+    </div>
+    <div class="step">
+      <b>点一面板里的「简历匹配」把你的简历放进去（可选但强烈建议）</b>
+      <span>上传 .docx/.txt 或直接粘贴简历文字 → 点「解析简历」。它会找出前 10 个最匹配的岗位，并且给每个岗位生成一条不一样的话术。详见 <a href="#resume">06</a>。如果你就想用同一句话术投所有岗位，跳过这步，去「筛选设置」里填自定义打招呼语即可。</span>
+    </div>
+    <div class="step">
+      <b>回到面板，确认勾选和间隔</b>
+      <span>看到「已选」的数字和底部「自动投递 N 个」是同一个数字就对了。把「间隔」调到 <b>30–45 秒</b>（第一次用别贪快）。</span>
+    </div>
+    <div class="step">
+      <b>点「自动投递 N 个」，然后不要关这个页面</b>
+      <span>面板会显示「正在投递 3/15」和进度条。它会自动打开每个岗位详情页、点「立即沟通」、补发话术、关掉、等间隔、下一个。<b>每投一个 BOSS 页面会闪一下，是正常的</b>。想停随时点「停止」。</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <b>投完去哪看结果？</b>① 面板顶部「已投」数字会涨；②「筛选设置」页最下面有「投递日志」，能看到每一条的标题、时间和结果；③<code>导出</code>按钮可以导出 CSV（含岗位链接），方便你自己记表。
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="panel">
+  <h2><span class="no">04</span>面板图解：每一块是什么意思</h2>
+  <p class="sub">下面这块深色面板就是在 BOSS 页面右侧看到的样子。圈出来的数字对应下面的说明表。</p>
+
+  <div class="panel">
+    <div class="p-hd">
+      <div class="p-dot"></div>
+      <div class="p-ttl">岗位雷达<em>v0.8.6</em></div>
+      <div class="p-sub">收起</div>
+    </div>
+
+    <div class="p-bar">
+      <div class="p-kpi"><span class="n">1</span>收录 <b>50</b></div>
+      <div class="p-kpi on">已选 <b>15</b></div>
+      <div class="p-kpi">可投 <b>34</b></div>
+      <div class="p-kpi">已投 <b>40</b></div>
+      <div class="p-kpi">今日 <b>12/40</b></div>
+    </div>
+    <div class="p-bar">
+      <div class="p-kpi"><span class="n">2</span>接口 <b>1</b> · DOM <b>3</b></div>
+    </div>
+
+    <div class="p-search">
+      <div class="p-in"><span class="n">3</span>前端工程师</div>
+      <div class="p-btn">搜索</div>
+    </div>
+
+    <div class="p-rm">
+      <div class="ic">简</div>
+      <div><b><span class="n">4</span>简历匹配</b><i>已同步 10 个 · 每个岗位一对一话术</i></div>
+      <div class="go">打开 →</div>
+    </div>
+
+    <div class="p-rowf">
+      <div class="p-chip"><span class="n">5</span>间隔 <em>15</em>s</div>
+      <div class="p-chip"><span class="n">5</span>默认勾 <em>15</em></div>
+      <div class="p-chip">全选</div>
+      <div class="p-chip">全不选</div>
+    </div>
+    <div class="p-rowf">
+      <div class="p-chip"><span class="n">6</span>只看通过</div>
+      <div class="p-chip">重新打分</div>
+      <div class="p-chip">筛选设置</div>
+    </div>
+
+    <div class="p-list">
+      <div class="p-item hl">
+        <div class="p-ck on"></div>
+        <div class="p-sc" style="color:#38bdf8"><span class="n">7</span>94</div>
+        <div class="p-mid">
+          <div class="p-t1"><span class="n">8</span>高级前端开发工程师<u>28-45K</u></div>
+          <div class="p-t2">星尘网络 · C轮 · 西湖区</div>
+          <div class="p-tags"><span class="p-tag pk">投 1</span><span class="p-tag g">+10 双休</span><span class="p-tag g">+9 通勤命中</span></div>
+        </div>
+      </div>
+      <div class="p-item hl">
+        <div class="p-ck on"></div>
+        <div class="p-sc" style="color:#22c55e">82</div>
+        <div class="p-mid">
+          <div class="p-t1">前端开发（小程序）<u>22-30K</u></div>
+          <div class="p-t2">云集电商 · B轮 · 拱墅区</div>
+          <div class="p-tags"><span class="p-tag pk">投 2</span><span class="p-tag b" style="background:rgba(167,139,250,.18);color:#c4b5fd">匹配 88</span><span class="p-tag g">+6 命中 前端</span></div>
+        </div>
+      </div>
+      <div class="p-sec">没勾选 · 不会投递 · 2 个</div>
+      <div class="p-item">
+        <div class="p-ck"></div>
+        <div class="p-sc" style="color:#f0b429">61</div>
+        <div class="p-mid">
+          <div class="p-t1">大模型算法工程师<u>35-60K</u></div>
+          <div class="p-t2">云栖智算 · A轮 · 余杭区</div>
+          <div class="p-tags"><span class="p-tag r">词外</span><span class="p-tag g">+10 双休</span><span class="p-tag r">-6 经验</span></div>
+        </div>
+      </div>
+      <div class="p-sec">已投过 · 1 个</div>
+      <div class="p-item">
+        <div class="p-ck off"></div>
+        <div class="p-sc" style="color:#22c55e">79</div>
+        <div class="p-mid">
+          <div class="p-t1">前端工程师（数据看板）<u>24-32K</u></div>
+          <div class="p-t2">某 SaaS · B轮 · 滨江区</div>
+          <div class="p-tags"><span class="p-tag d">已投</span><span class="p-tag g">+12 命中 前端</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-ft">
+      <div class="b w"><span class="n">9</span>自动投递 15 个</div>
+      <div class="b">导出</div>
+      <div class="b">清空</div>
+    </div>
+  </div>
+  <p class="cap">↑ 真实面板的结构示意（数字在真实面板里没有，这里是为了对照说明）</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>编号</th><th>是什么</th><th>怎么看</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>① 顶部统计</b></td>
+          <td>收录 / 已选 / 可投 / 已投 / 今日</td>
+          <td><b>收录</b>=当前搜索词下抓到几个（池子里可能还有别的词搜来的，不算）；<b>已选</b>=你现在勾了几个；<b>可投</b>=有详情页链接且还没投过的；<b>已投</b>=累计投过多少家；<b>今日</b>=今天投了几个 / 上限。</td>
+        </tr>
+        <tr>
+          <td><b>② 抓取计数</b></td>
+          <td>抓取通道的计数</td>
+          <td>两个数字都大于 0，说明抓取正常。点它一下会复制诊断信息（页面结构片段 + 薪资原文，不含账号信息），抓不到岗位时把这段发给开发者最快。</td>
+        </tr>
+        <tr>
+          <td><b>③ 搜索框</b></td>
+          <td>换关键词</td>
+          <td>改完点「搜索」，会直接跳到 BOSS 的搜索结果页。在这里换词，简历匹配页会跟着换一批岗位。</td>
+        </tr>
+        <tr>
+          <td><b>④ 简历匹配</b></td>
+          <td>核心功能入口</td>
+          <td>放进简历，按匹配度排序并给每个岗位生成专属话术。副标题写「已同步 10 个」就是已经用上了。</td>
+        </tr>
+        <tr>
+          <td><b>⑤ 节奏</b></td>
+          <td>节奏</td>
+          <td><b>间隔</b>=两次投递之间等多久；<b>默认勾</b>=自动帮你勾分数最高的前几个（不影响你手动勾的数量，勾多少就投多少）。</td>
+        </tr>
+        <tr>
+          <td><b>⑥ 筛选</b></td>
+          <td>只看通过 / 重新打分 / 筛选设置</td>
+          <td><b>只看通过</b>=隐藏被排除的岗位；<b>重新打分</b>=改了设置后用；<b>筛选设置</b>=打开详细偏好页（薪资、通勤、加分踩雷词等）。</td>
+        </tr>
+        <tr>
+          <td><b>⑦ 分数</b></td>
+          <td>0–100 的匹配分</td>
+          <td>绿 ≥80、蓝 65–79、黄 50–64、红 &lt;50。分数下面的小标签写着每一分怎么来的（<code>+10 双休</code>、<code>-4 薪资低于期望</code>），能一条条核对，不是黑箱。</td>
+        </tr>
+        <tr>
+          <td><b>⑧ 岗位名</b></td>
+          <td>点一下开详情页</td>
+          <td>点岗位名或整行 = 在新标签打开 BOSS 原页面，自己核对 JD。点勾选框不会误触打开。</td>
+        </tr>
+        <tr>
+          <td><b>⑨ 底部按钮</b></td>
+          <td>自动投递 N 个 / 导出 / 清空</td>
+          <td><b>N 永远等于「已选」</b>。导出=CSV（含链接、分数、排除原因）；清空=清掉抓到的岗位（已投记录会保留）。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="swipe">← 表格可左右滑动 →</p>
+</section>
+
+<!-- 05 -->
+<section id="check">
+  <h2><span class="no">05</span>勾选框到底是什么意思</h2>
+  <p class="sub">这是被问得最多的一处，单独说清楚。</p>
+
+  <div class="card">
+    <p style="margin-top:0"><b>一句话：勾上 = 会投这个岗位，取消 = 不投。没有第三种状态。</b></p>
+    <ul>
+      <li><b>「已选」的数字、底部「自动投递 N 个」的 N、真正开跑时投的队列，永远是同一个数。</b>你在列表里勾 34 个，按钮就是 34 个，投的就是 34 个，不会被偷偷截断。</li>
+      <li><b>默认只勾分数最高的前 N 个</b>（N 就是面板上「默认勾」那个档位，默认 15）。所以刚抓完 50 个岗位时你看到的是「已选 15」，不是 50——它不会替你决定投 50 家。</li>
+      <li><b>想多投就点「全选」</b>，或一个个勾；想少投就点「全不选」再挑。勾上/取消后数字立刻跟着变。</li>
+      <li><b>灰掉的勾选框</b>是不能投的：已经投过、没拿到详情页链接、或者被你的筛选条件排除了。鼠标停在上面会看到原因。</li>
+      <li>勾选状态存在本地，<b>刷新页面、关浏览器都不会丢</b>。</li>
+    </ul>
+  </div>
+
+  <h3>列表为什么这么排</h3>
+  <p>列表顺序不是单纯按分数，而是按「接下来会发生什么」：</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>分组</th><th>含义</th><th>会不会投</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag-s y">投 1 / 投 2 / 投 3…</span></td><td>勾着的岗位，序号就是投递顺序（按分数从高到低）</td><td><b>会</b></td></tr>
+        <tr><td><b>没勾选 · 不会投递</b></td><td>分数够但你没勾的（含「词外」的）</td><td>不会，勾上就会</td></tr>
+        <tr><td><b>已投过</b></td><td>投过的岗位，勾选框禁用</td><td>不会重复投</td></tr>
+        <tr><td><b>已排除</b></td><td>命中踩雷词、薪资不达标、规模/区域被排除</td><td>不会（关掉「只看通过」能看到理由）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="swipe">← 表格可左右滑动 →</p>
+
+  <div class="tip">
+    <b>看到「词外」标签是什么意思？</b>这个岗位的标题和标签里<b>没有</b>你搜的词，通常是 BOSS 自己的推荐位、或者详情页的「相似职位」混进来的。它们默认不勾、也不会被「全选」勾上——真想投，自己单独勾。
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="resume">
+  <h2><span class="no">06</span>用简历找最匹配的岗位</h2>
+  <p class="sub">这一步是它跟「无脑海投」拉开差距的地方：先按你的简历排序，再给每个岗位写不一样的第一句。</p>
+
+  <div class="steps">
+    <div class="step">
+      <b>打开「简历匹配」</b>
+      <span>点面板里那一行「简历匹配 · 打开 →」，或点浏览器工具栏的扩展图标 →「简历匹配 · 找最合适的岗位」。</span>
+    </div>
+    <div class="step">
+      <b>放进简历</b>
+      <span>直接拖 .docx / .txt / .md 文件到虚线框，或点一下选文件；也可以把简历文字整段粘贴到下面的输入框。看不到具体格式要求没关系，正文能读出字就行（扫描件图片读不出来）。</span>
+    </div>
+    <div class="step">
+      <b>点「解析简历」</b>
+      <span>右边会显示：识别到几年经验、期望薪资、所在城市、技能标签、几条可用原句（这些原句会被拼进话术里，所以第 3 行提示「识别到 N 条可用原句」很关键）。</span>
+    </div>
+    <div class="step">
+      <b>看「最匹配的 N 个」</b>
+      <span>默认取前 10 个，可以改成 1–50。每个岗位一行：左边匹配分，中间岗位名 +「查看详情 ↗」（点开就是 BOSS 原 JD，方便你核对），下面是<b>这个岗位专属的打招呼语</b>，可以直接在里面改，右边显示字数（超过 180 字会标红，BOSS 聊天框显示不全）。</span>
+    </div>
+    <div class="step">
+      <b>点「立即投递 N 个」</b>
+      <span>会写进投递计划、打开 BOSS 页面、自动开跑。也可以先点「只同步到面板」，回面板里自己再勾一遍。这页也能调发送间隔，并显示「预计 X 分钟投完 N 个」。</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>「岗位范围」那一行要对一下。</b>如果你的岗位池里同时存着几个搜索词的岗位（比如先搜「测试」又搜「前端」），这里会显示「「前端」12」和「全部已抓 50」两个按钮。<b>默认只按当前搜索词出结果</b>——这是故意的，否则改完关键词看到的还是上一批岗位。
+    <br><br>
+    <b>改了筛选设置里的岗位关键词，没生效？</b>必须回 BOSS <b>重新搜一次</b>（面板会抓到新一批岗位），再回来点「解析简历」。只在设置页改字、不去搜，池子里还是旧岗位。如果页面提示「设置里的岗位名称是 X，但池子里还没有这个词的岗位」，就点它给的「去搜 X ↗」。
+  </div>
+</section>
+
+<!-- 07 -->
+<section id="greet">
+  <h2><span class="no">07</span>打招呼语：为什么对方会收到两条</h2>
+  <p class="sub">这是产品层面绕不开的一件事，提前说明白，省得你以为坏了。</p>
+
+  <div class="danger">
+    <b>平台事实：</b>你点「立即沟通」的那一刻，BOSS 会<b>先自动发出它在站内保存的那句默认招呼语</b>（通常是「您好，我对这个职位很感兴趣，可以聊聊吗？」）。这一步是 BOSS 自己做的，扩展<b>拦不住、也改不了</b>。扩展能做的是：紧接着在聊天框里补发<b>第二条</b>——你为这个岗位写的那句。
+    <br><br>
+    <b>所以对方看到的是两条消息。</b>这不算 bug。
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">把「两条」变成「一条半」的三个办法</h3>
+    <ol>
+      <li><b>去 BOSS 设置里把默认招呼语改到最短</b>（比如就一个「您好」）。路径：BOSS 网页 → 右上角头像 → 隐私/打招呼设置里改「默认打招呼语」。这样第一条几乎不占字数，第二条才是重点。</li>
+      <li><b>话术开头不要重复自我介绍</b>。因为第一条已经在问好了，第二条直接从「我看到岗位要求里提到 X」开始，读起来才连贯。</li>
+      <li><b>用「简历匹配」的专属话术</b>，而不是一句通用模板。它会把岗位标题、JD 里的技术点、你简历里的原句拼进去——这是回复率的差别所在。</li>
+    </ol>
+
+    <h3>一条好话术长什么样</h3>
+    <p class="muted">公式：<b>JD 里一个具体技术点 + 一个可验证的结果 + 一个轻量的问题</b>。</p>
+    <p style="background:var(--bad-soft);border-radius:8px;padding:10px 12px;color:#7f1d1d;font-size:13px">
+      ✗ 「你好，我对贵司岗位很感兴趣，期待回复。」——等于没说话。
+    </p>
+    <p style="background:var(--ok-soft);border-radius:8px;padding:10px 12px;color:#14532d;font-size:13px">
+      ✓ 「你好，看到岗位要向量检索这块，我上一个项目用 pgvector 做过 200 万条 embedding 的召回优化，QPS 从 30 提到 90。想了解下你们现在是自己搭还是用云服务？」
+    </p>
+    <p class="muted" style="margin-bottom:0">没有专属话术时，用的是「筛选设置」里那句自定义打招呼语兜底，所以那句也建议填上。</p>
+  </div>
+</section>
+
+<!-- 08 -->
+<section id="tune">
+  <h2><span class="no">08</span>参数怎么调（这是生死线）</h2>
+  <p class="sub">调太快、投太多，是这套东西唯一会真正伤到你的地方。</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>参数</th><th>建议值</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>岗位之间的间隔</b></td><td>新手 30–45 秒<br>日常 12–20 秒</td><td>面板里点 <code>−</code> <code>+</code> 就能改，简历页也能改。低于 8 秒被限流的概率明显上升，别为了快把账号搭进去。</td></tr>
+        <tr><td><b>默认勾选数量</b></td><td>首次 3，日常 10–20</td><td>只决定「自动帮你勾几个」。勾上的一律会投，手动勾多少就投多少。</td></tr>
+        <tr><td><b>每日最多投递</b></td><td><b>≤ 40</b></td><td>BOSS 对单日沟通数有隐性阈值。到上限会自动停，并在面板提示。</td></tr>
+        <tr><td><b>自定义打招呼语</b></td><td>必填</td><td>留空就是用 BOSS 的默认模板语，那投了跟没投差不多。用了简历匹配的话，这句只在没有专属话术时兜底。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="swipe">← 表格可左右滑动 →</p>
+
+  <div class="tip">
+    <b>2026-11 实测补充：</b>上表是偏保守的默认建议。开发者后续实测<b>每 5 秒投递 1 个</b>未触发风控，可以按自己账号的情况把间隔调短。但一旦页面弹出<b>真人验证 / 滑块 / 短信验证</b>，请立刻点「停止」暂停，把间隔<b>调大</b>、放慢节奏后再继续，不要连续硬闯验证。不同账号、不同时段的风控尺度不一样，第一次用仍建议从 30 秒左右起步观察。
+  </div>
+
+  <h3>「筛选设置」里那些字段在干嘛</h3>
+  <p class="muted">入口：点面板上的「筛选设置」，或扩展图标 →「筛选设置」。</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>分组</th><th>字段</th><th>对打分的影响</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="2"><b>找什么工作</b></td><td>岗位关键词</td><td>面板「搜索」按它跳转；也是简历匹配的默认依据。<b>改完必须去 BOSS 重新搜一次。</b></td></tr>
+        <tr><td>城市</td><td>跳转搜索时带上城市，省得每次手选。</td></tr>
+        <tr><td rowspan="3"><b>薪资</b></td><td>硬性底线</td><td>岗位薪资<b>上限</b>低于它 → 直接排除（不进推荐）。</td></tr>
+        <tr><td>期望下限 / 上限</td><td>落在区间里加分，高出上限额外加分（14 薪会折算）。</td></tr>
+        <tr><td>—</td><td>这块是「值不值得投」的第一道闸，建议一定填。</td></tr>
+        <tr><td rowspan="4"><b>通勤</b></td><td>想去的区 / 排除的区</td><td>命中想去的区加分，命中排除区直接降分甚至排除。</td></tr>
+        <tr><td>最远通勤（km）</td><td>需要高德 Key 才能算真实距离；不填只按区名判断。</td></tr>
+        <tr><td>家庭/公司地址</td><td>算直线距离的起点。</td></tr>
+        <tr><td>高德 Key（可选）</td><td>免费申请，填了才显示「+9 通勤命中」这类真实公里数加分。</td></tr>
+        <tr><td rowspan="3"><b>关键词</b></td><td>加分词</td><td>标题/标签命中加分，例如 <code>AI,大模型,Agent</code>。</td></tr>
+        <tr><td>踩雷词</td><td>命中扣分，多个接近排除线，例如 <code>外包,驻场,销售,大小周</code>。</td></tr>
+        <tr><td>必须福利 / 偏好阶段 / 排除规模</td><td>双休、五险一金命中加分；公司阶段命中加分；规模命中直接排除。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="swipe">← 表格可左右滑动 →</p>
+
+  <div class="tip">
+    设置页最下面还有三块常被忽略的东西：<b>投递日志</b>（今天投了谁、成功没成功）、<b>导出 CSV</b>（岗位表 / 投递日志各一份）、<b>清空本地数据 / 重置已投记录</b>（重置后同一批岗位可以再投一次，慎用）。
+  </div>
+</section>
+
+<!-- 09 -->
+<section id="faq">
+  <h2><span class="no">09</span>常见问题</h2>
+  <p class="sub">按「最常被问」排的。点一下展开。</p>
+
+  <details>
+    <summary>装好了，但 BOSS 页面上没有那个深色面板</summary>
+    <div class="ans">
+      <ul>
+        <li>面板只出现在<b>搜索结果页</b>（地址里有 <code>/web/geek/job</code>）。BOSS 首页、职位详情页、聊天页都不显示。</li>
+        <li>装完要<b>刷新一次页面</b>，或者关掉标签页重开。</li>
+        <li>面板默认是<b>收起的迷你条</b>，在页面右侧，写着「岗位雷达 · N」，点它才展开。如果连迷你条都没有，去扩展管理页确认扩展是「已启用」。</li>
+        <li>如果你改过浏览器缩放或用了深色主题插件，面板可能被挤到屏幕外——按 <kbd>Ctrl</kbd>+<kbd>0</kbd> 恢复 100% 缩放试试。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>收录一直是 0，抓不到岗位</summary>
+    <div class="ans">
+      <ul>
+        <li>在搜索页<b>往下滚两屏</b>。BOSS 的岗位是滚动加载的，不滚它不会请求数据。</li>
+        <li>按一次 <kbd>F5</kbd> 刷新。刷新时扩展会重新挂载，是最有效的一招。</li>
+        <li>看面板上「接口 1 · DOM 3」这两个数字：都大于 0 说明通道是通的，只是这批没数据；一直是 0 才说明真没抓到。</li>
+        <li>还是 0 的话，<b>点一下这两个数字</b>，诊断信息会复制到剪贴板，发给开发者能直接定位（里面不含你的账号信息）。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>按钮显示「自动投递 0 个」，点了没反应</summary>
+    <div class="ans">
+      <p>先看顶部「可投」那个数：</p>
+      <ul>
+        <li><b>可投 = 0，收录 &gt; 0</b>：岗位没拿到详情页链接，或者都投过了。做法：回搜索页按 <kbd>F5</kbd> 重抓一次。</li>
+        <li><b>收录 = 0</b>：当前搜索词下没岗位（池子里那批是别的词搜的，被故意排除了）。去 BOSS 搜你设置里那个词。</li>
+        <li><b>可投 &gt; 0 但已选 = 0</b>：你没勾任何岗位。点「全选」，或手动勾几个。</li>
+        <li><b>今日 40/40</b>：到每日上限了。去「筛选设置」调高上限，或明天再投。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>岗位投出去了，但对方只收到一句「您好，我对这个职位很感兴趣」</summary>
+    <div class="ans">
+      <p>那是 BOSS 的站内默认招呼语，不是你写的那句。说明第二条没发出去，常见三种原因：</p>
+      <ul>
+        <li><b>话术为空</b>：既没做「简历匹配」，也没在「筛选设置」里填自定义打招呼语。去填一句。</li>
+        <li><b>页面没加载完就点了</b>：间隔太短（&lt;8 秒）时容易发生。把间隔调到 15 秒以上重投一次。</li>
+        <li><b>被风控限流</b>：连续快速投递后，BOSS 会限制发消息。停一天，间隔拉长到 30 秒以上。</li>
+      </ul>
+      <p style="margin-bottom:0">另外请记住：<b>第一条默认语永远会发</b>，扩展只能补第二条（详见 <a href="#greet">07</a>）。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>简历页点「解析简历」，出来的还是上一次那批岗位</summary>
+    <div class="ans">
+      <p>原因是简历页是常驻标签页，它不知道你在 BOSS 那边换了词。</p>
+      <ul>
+        <li>正确姿势：<b>在 BOSS 里搜新词 → 滚动抓到岗位 → 回简历页点「解析简历」</b>（现在它会自动重读一次数据，不用刷新页面）。</li>
+        <li>看「岗位范围」那一行：如果显示的是旧的词，点一下写着新词的那个按钮切换。</li>
+        <li>只在「筛选设置」里改关键词、不去 BOSS 搜，池子里不会凭空多出新岗位——页面会黄字提醒你「去搜 X」。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>列表里出现跟我搜的岗位完全无关的东西（标着「词外」）</summary>
+    <div class="ans">
+      <p>那些是 BOSS 的推荐位、或者从详情页「相似职位」抓到的，标题里根本没有你搜的词。它们被标成 <b>词外</b>，默认不勾、不会被「全选」勾上，也不会被投递。</p>
+      <p style="margin-bottom:0">如果你觉得某一批整体跑偏了，通常是搜索词太宽（比如只搜「工程师」）。换个具体点的词，然后按 <kbd>F5</kbd> 重抓。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>分数看不懂，为什么这个岗位 40 分排在上面？</summary>
+    <div class="ans">
+      <p>分数下面是它的「账单」，每个标签就是一条加减分记录，例如 <code>+10 双休</code>、<code>+9 通勤命中</code>、<code>-4 薪资低于期望</code>、<code>-13 踩雷 单休</code>。全部加起来就是那个分数。</p>
+      <p style="margin-bottom:0">觉得某条不合理，就去「筛选设置」改对应的词/值，回来点「重新打分」即可，不用重新抓岗位。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>能同时开两个 BOSS 标签页吗？投递的时候我还能用电脑吗？</summary>
+    <div class="ans">
+      <ul>
+        <li>可以同时开，但<b>投递期间别在那几个标签页上点来点去</b>——扩展需要它们保持可见，切到后台可能被浏览器节流。</li>
+        <li>投递时它会在<b>同一个标签页里轮转</b>（不会给你开一堆新窗口），页面会逐个闪一下，所以那段时间最好别用这个标签页做别的事。</li>
+        <li>想停下随时点面板上的「停止」；把小窗/标签页关掉也会停，不会失控继续投。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>刷新、重启电脑之后，我的勾选和已投记录还在吗？</summary>
+    <div class="ans">
+      <p style="margin-bottom:0">都在。勾选、已投记录、话术、筛选设置全部存在本机浏览器里。同一个岗位投过之后会被记住，<b>不会重复投</b>——除非你去「筛选设置」里点「重置已投记录」。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>换电脑 / 重装浏览器，数据会跟过去吗？</summary>
+    <div class="ans">
+      <p style="margin-bottom:0">不会。数据只在这台电脑的浏览器里，不跟账号绑定。<b>换机器前先在「筛选设置」里导出 CSV 备份</b>（岗位表和投递日志各一份），至少知道自己投过哪些公司。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>支持手机 / 支持 Safari / 支持 Firefox 吗？</summary>
+    <div class="ans">
+      <p style="margin-bottom:0">都不支持。它是桌面浏览器扩展，需要 Chromium 内核（Edge、Chrome、以及基于它们的浏览器），版本 111 以上。手机上 BOSS 的投递体验也没法自动化。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>会把我的简历、账号信息传到你们服务器吗？</summary>
+    <div class="ans">
+      <p style="margin-bottom:0">不会。扩展只申请了 <code>storage</code>（本地存数据）、<code>tabs</code>（切换标签页）、<code>downloads</code>（导出 CSV）三个权限，域名权限只有 <code>zhipin.com</code> 和 <code>restapi.amap.com</code>（只有你自己填了高德 Key 才会请求）。简历原文、岗位、话术都只在你本机。</p>
+    </div>
+  </details>
+</section>
+
+<!-- 10 -->
+<section id="risk">
+  <h2><span class="no">10</span>风险与边界（请认真看这一段）</h2>
+  <p class="sub">这段不是免责声明，是使用建议。它决定了你能不能用得久。</p>
+
+  <div class="danger">
+    <p style="margin-top:0"><b>自动点击属于自动化行为，违反 BOSS 直聘的用户协议，存在被「打招呼受限」甚至封号的真实风险。</b>这跟工具做得好不好没关系——平台一直在检测。</p>
+    <p style="margin-bottom:0">能降低风险的做法：<b>间隔 ≥ 12 秒</b>（新手 30 秒以上）、<b>每日 ≤ 40</b>、<b>只投真正想去的岗位</b>、<b>别 24 小时挂着跑</b>、<b>新账号第一天先投 3 个看看</b>。以上是保守基线；后续实测 5 秒间隔亦未触发风控，但请以自己账号的实际反馈为准（见 <a href="#tune">08</a> 节的实测补充）。如果收到「操作频繁」提示或弹出真人验证，立刻停止，调大间隔后再说。</p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">使用心态建议</h3>
+    <ul>
+      <li><b>它是漏斗的上半段，不是全部。</b>它负责把 50 个岗位筛成 15 个「值得聊」的，剩下聊得好不好，还是看你的话术和简历。</li>
+      <li><b>每天投 20–30 个高质量的，比一天投 200 个模板消息回复率高得多。</b>BOSS 的 HR 一眼就能看出群发。</li>
+      <li><b>投之前扫一眼分数下面的标签。</b>如果看到「-4 薪资低于期望」「-13 踩雷 单休」，那就是你自己设的筛子在工作，别硬投。</li>
+      <li><b>别用它投完全不匹配的岗位。</b>除了浪费每日额度，还会把你的账号画像搞差（HR 侧会看到你的投递记录）。</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="foot-card">
+    <b>版本与反馈</b>
+    <p class="muted" style="margin:8px 0 0">
+      说明书对应版本：<b>岗位雷达 JobRadar v0.8.6</b>（2026-10-29）· 适用 Edge / Chrome 111+<br>
+      装完面板标题栏会显示版本号，如果不是 <code>v0.8.6</code>，说明加载的是旧文件夹，重新解压覆盖后再加载一次。<br>
+      遇到问题请提供：① 面板上「接口 x · DOM y」那段诊断信息（点它即可复制）；② 你搜的关键词；③ 截图。
+    </p>
+  </div>
+  <p style="margin-bottom:20px">这份说明书可以随意转发给需要的人。</p>
+</footer>
+
+<script>
+  /* 打印时把所有折叠的问答展开，免得打印出一半 */
+  window.addEventListener('beforeprint', function () {
+    document.querySelectorAll('details').forEach(function (d) { d.open = true; });
+  });
+  /* 点目录后留一点间距，别被吸顶导航盖住 */
+  document.querySelectorAll('nav a').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var t = document.querySelector(a.getAttribute('href'));
+      if (!t) return;
+      e.preventDefault();
+      var y = t.getBoundingClientRect().top + window.scrollY - 58;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>

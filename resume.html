@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>简历匹配 · 岗位雷达</title>
+<style>
+  :root{
+    --bg:#0b0f16; --panel:#111826; --panel2:#0e1420; --line:rgba(120,150,200,.16);
+    --txt:#e6edf7; --dim:#8b98ad; --dim2:#5f6a7d;
+    --acc:#3b82f6; --ok:#22c55e; --warn:#f0b429; --bad:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 20% -10%,rgba(59,130,246,.13),transparent 60%),var(--bg);
+    color:var(--txt);font:14px/1.6 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    min-height:100vh;padding:22px 22px 60px;
+  }
+  .wrap{max-width:1240px;margin:0 auto}
+  header{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  h1{font-size:19px;font-weight:700;letter-spacing:.2px}
+  h1 span{color:var(--acc)}
+  .sub{font-size:12.5px;color:var(--dim)}
+  .pill{margin-left:auto;font-size:11.5px;color:var(--dim);border:1px solid var(--line);
+    border-radius:20px;padding:4px 11px;background:rgba(255,255,255,.03)}
+  .pill b{color:var(--ok)}
+
+  .cols{display:grid;grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr);gap:16px}
+  @media (max-width:940px){.cols{grid-template-columns:1fr}}
+
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+    border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .card-hd{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);
+    font-size:12.5px;font-weight:600;color:#cfdcec}
+  .card-hd .sq{width:6px;height:6px;border-radius:2px;background:var(--acc)}
+  .card-bd{padding:14px}
+
+  .drop{border:1.5px dashed rgba(120,150,200,.32);border-radius:11px;padding:18px;text-align:center;
+    transition:.15s;cursor:pointer;background:rgba(255,255,255,.015)}
+  .drop:hover,.drop.over{border-color:var(--acc);background:rgba(59,130,246,.07)}
+  .drop b{font-size:13px;display:block;margin-bottom:3px}
+  .drop span{font-size:11.5px;color:var(--dim2)}
+
+  textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+    color:var(--txt);font:13px/1.75 ui-monospace,Menlo,Consolas,"PingFang SC",monospace;
+    padding:11px;outline:none;resize:vertical;min-height:190px}
+  textarea:focus{border-color:var(--acc)}
+  .hint{font-size:11.5px;color:var(--dim2);margin-top:7px;line-height:1.7}
+  .hint b{color:var(--dim)}
+
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  button{font:inherit;font-size:12.5px;padding:7px 13px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--line);background:rgba(255,255,255,.05);color:#dbe6f5;transition:.15s}
+  button:hover{background:rgba(255,255,255,.1)}
+  button.primary{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:#1d4ed8;
+    color:#fff;font-weight:600}
+  button.primary:hover{filter:brightness(1.08)}
+  button.warn{background:linear-gradient(180deg,#f59e0b,#d97706);border-color:#b45309;color:#fff;font-weight:600}
+  button:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  button.sm{font-size:11.5px;padding:5px 9px;border-radius:7px}
+
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:10px;margin-top:12px}
+  .fact{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+  .fact span{display:block;font-size:10.5px;color:var(--dim2)}
+  .fact b{font-size:14px;font-weight:700;color:#eaf1fb}
+
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:11px}
+  .chip{font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(96,165,250,.14);
+    color:#bfdbfe;border:1px solid rgba(96,165,250,.2)}
+  .chip.g{background:rgba(34,197,94,.13);color:#7ee2a8;border-color:rgba(34,197,94,.22)}
+  .chip.r{background:rgba(239,68,68,.13);color:#fca5a5;border-color:rgba(239,68,68,.22)}
+  .chip.n{background:rgba(255,255,255,.05);color:var(--dim);border-color:var(--line)}
+
+  .m-item{border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:9px;
+    background:rgba(255,255,255,.022);transition:.15s}
+
+  /* 岗位范围：只看当前搜索词 / 全部已抓 */
+  .scope{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 9px}
+  .scope .sc-lb{font-size:11.5px;color:var(--dim2)}
+  .scope button{padding:3px 9px;font-size:11.5px;border-radius:6px;border:1px solid var(--line);
+    background:rgba(255,255,255,.03);color:var(--dim);cursor:pointer;font-family:inherit;transition:.12s}
+  .scope button:hover{color:#c9d6e8;border-color:rgba(120,150,200,.35)}
+  .scope button.on{background:rgba(59,130,246,.18);border-color:rgba(59,130,246,.45);color:#bfdbfe}
+  .scope .sc-tip{font-size:11px;color:var(--dim2)}
+  .m-item:hover{border-color:rgba(120,150,200,.3);background:rgba(255,255,255,.04)}
+  .m-top{display:flex;gap:11px;align-items:flex-start}
+  .m-score{flex:0 0 44px;text-align:center;padding-top:1px}
+  .m-score b{display:block;font-size:17px;font-weight:800;line-height:1}
+  .m-score span{font-size:9.5px;color:var(--dim2)}
+  .m-main{flex:1;min-width:0}
+  .m-t1{display:flex;align-items:baseline;gap:8px}
+  .m-nm{font-size:13.5px;font-weight:600;color:#eaf1fb;text-decoration:none;min-width:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  a.m-nm{cursor:pointer;border-bottom:1px solid transparent}
+  a.m-nm:hover{color:#c3ddff;border-bottom-color:rgba(143,188,255,.5)}
+  .m-sal{font-size:12px;font-weight:600;color:var(--warn);margin-left:auto;white-space:nowrap}
+  .m-t2{font-size:11.5px;color:var(--dim);margin-top:2px;display:flex;align-items:baseline;gap:8px;min-width:0}
+  .m-meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  /* 详情页链接：匹配分是本地算的，得让用户点回去看原 JD 核对 */
+  .m-link{margin-left:auto;flex:0 0 auto;font-size:11.5px;color:#8fbcff;text-decoration:none;
+    border-bottom:1px dashed rgba(143,188,255,.45);cursor:pointer;white-space:nowrap}
+  .m-link:hover{color:#c3ddff;border-bottom-color:rgba(195,221,255,.8)}
+  .m-link.off{color:#fca5a5;border-bottom:none;cursor:default;font-size:11px}
+  .m-kv{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .m-msg{margin-top:9px}
+  .m-msg textarea{min-height:0;height:64px;font:12.5px/1.7 inherit;background:rgba(0,0,0,.28)}
+  .m-msg .mt{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .m-msg .mt span{font-size:10.5px;color:var(--dim2)}
+  .m-msg .mt .len{margin-left:auto;font-size:10.5px;color:var(--dim2)}
+  .len.bad{color:#fca5a5}
+
+  .empty{padding:34px 16px;text-align:center;color:var(--dim2);font-size:12.5px;line-height:1.9}
+
+  /* 节奏控制：投递前就在这页把间隔定好，不用再跳回 BOSS 面板 */
+  .pace{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:11px;padding:9px 11px;
+    border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.028)}
+  .pace .lb{font-size:11.5px;color:var(--dim2)}
+  .pg{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;
+    overflow:hidden;background:rgba(255,255,255,.05)}
+  .pg i{font-style:normal;font-size:13px;line-height:1;padding:5px 9px;cursor:pointer;color:var(--dim);
+    user-select:none;transition:.12s}
+  .pg i:hover{background:rgba(96,165,250,.22);color:#fff}
+  .pg b{font-size:12px;font-weight:600;color:#cfe0f5;padding:0 4px;min-width:52px;text-align:center}
+  .pg b em{font-style:normal;color:var(--warn)}
+  .pace .est{font-size:11px;color:var(--dim2)}
+  .pace .est b{color:var(--dim)}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;
+    background:#16a34a;color:#fff;font-size:12.5px;padding:9px 16px;border-radius:9px;
+    transition:.22s;pointer-events:none;max-width:80vw;text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast.err{background:#dc2626}
+  .num{width:64px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    color:var(--txt);font:inherit;font-size:12.5px;padding:6px 8px;outline:none}
+  code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>简历 → <span>最匹配的岗位</span></h1>
+      <div class="sub">不用大模型：术语重合度排序 + 简历原句拼装话术。所有数据只在本机。</div>
+    </div>
+    <div class="pill" id="envPill">检测环境…</div>
+  </header>
+
+  <div class="cols">
+    <!-- ================= 左：简历 ================= -->
+    <section class="card">
+      <div class="card-hd"><span class="sq"></span>你的简历</div>
+      <div class="card-bd">
+        <div class="drop" id="drop">
+          <b>点击选择 .docx / .txt / .md</b>
+          <span>也可以直接把文件拖到这里，或粘贴到下面</span>
+          <input type="file" id="file" accept=".docx,.txt,.md,.markdown" hidden>
+        </div>
+
+        <textarea id="raw" placeholder="把简历文字粘贴到这里，例如：&#10;张明  求职意向：AI 应用工程师（前端方向）  杭州&#10;工作经历&#10;2021.07-至今  星野智能  高级前端工程师&#10;- 负责 AI Agent 对话产品的前端架构，首屏从 2.4s 降到 0.9s&#10;- 主导 RAG 知识库问答的检索结果渲染，问答准确率提升 18%"></textarea>
+        <div class="row">
+          <button class="primary" id="btnParse">解析简历</button>
+          <button id="btnSample">填一份示例看看</button>
+          <button id="btnClear">清空</button>
+        </div>
+        <div class="hint">
+          PDF 不解析（中文 PDF 抽出来多是乱码）：在阅读器里 <b>全选复制</b> 粘贴过来，或另存为 docx。
+          简历里写清 <b>数字结果</b>（提升 18%、QPS 3 万），话术才有东西可用。
+        </div>
+
+        <div id="profileBox" style="display:none">
+          <div class="facts">
+            <div class="fact"><span>经验</span><b id="fYears">—</b></div>
+            <div class="fact"><span>学历</span><b id="fDegree">—</b></div>
+            <div class="fact"><span>期望</span><b id="fSalary">—</b></div>
+            <div class="fact"><span>城市</span><b id="fCity">—</b></div>
+            <div class="fact"><span>识别技能</span><b id="fSkills">0</b></div>
+            <div class="fact"><span>可用原句</span><b id="fBullets">0</b></div>
+          </div>
+          <div class="chips" id="skillChips"></div>
+          <div class="row" style="margin-top:14px">
+            <span style="font-size:11.5px;color:var(--dim2)">建议搜索词</span>
+            <span id="queryChips" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 右：匹配 ================= -->
+    <section class="card">
+      <div class="card-hd">
+        <span class="sq" style="background:var(--warn)"></span>最匹配的岗位
+        <span style="margin-left:auto;font-size:11.5px;color:var(--dim2)">取前
+          <input class="num" type="number" id="topN" min="1" max="50" value="10"> 个
+        </span>
+      </div>
+      <div class="card-bd">
+        <div id="poolInfo" class="hint" style="margin:0 0 6px"></div>
+        <div class="scope" id="scopeBox" style="display:none">
+          <span class="sc-lb">岗位范围</span>
+          <button data-scope="kw" id="scKw" class="on">当前搜索词</button>
+          <span id="scMore" style="display:contents"></span>
+          <button data-scope="all" id="scAll">全部已抓</button>
+          <span class="sc-tip" id="scTip"></span>
+        </div>
+        <div id="kwSync" class="hint" style="display:none;margin:0 0 9px;color:var(--warn)"></div>
+        <div class="hint" style="margin:0 0 10px;color:var(--dim2);font-size:11.5px">
+          点岗位名或「查看详情 ↗」会在新标签打开 BOSS 原页面，只查看、不会触发投递。
+        </div>
+        <div id="matches"><div class="empty">先把简历解析出来，再回 BOSS 搜几个关键词让面板收岗位</div></div>
+        <div class="row" id="actions" style="display:none">
+          <button class="primary" id="btnApply">立即投递</button>
+          <button id="btnPlan">只同步到面板</button>
+          <button id="btnCopy">复制话术</button>
+          <button id="btnJson">导出 JSON</button>
+        </div>
+
+        <div class="pace" id="paceBox" style="display:none">
+          <span class="lb">发送间隔</span>
+          <span class="pg" title="两个岗位之间的间隔。BOSS 每个岗位本身还要 4~6 秒（等页面 + 填话术）">
+            <i data-gap="-1">−</i><b><em id="gapVal">15</em>s</b><i data-gap="1">+</i>
+          </span>
+          <span class="est" id="paceEst"></span>
+          <span class="est" style="margin-left:auto;color:var(--dim2)">改完全局生效，面板里也会同步</span>
+        </div>
+
+        <div class="hint" id="applyHint" style="display:none;margin-top:8px">
+          点「立即投递」会打开 BOSS 页面并在面板里自动开跑：每个岗位用它自己的话术。
+          注意 BOSS 点「立即沟通」时会先自动发出你在站内设置的默认招呼语，扩展紧接着补发上面这句 ——
+          想只留一条，把 BOSS 里「默认打招呼语」改成最短的一句（比如「您好」）。
+        </div>
+        <div id="runBox" style="display:none;margin-top:12px;padding:10px;border-radius:9px;
+             background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);font-size:11.5px"></div>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="matcher.js"></script>
+<script src="resume-io.js"></script>
+<script src="resume.js"></script>
+</body>
+</html>
